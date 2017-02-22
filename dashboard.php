@@ -36,47 +36,99 @@
      */
     var app = angular.module('BlankApp', ['ngMaterial'])
 
-    .controller('AppCtrl', ['$scope', '$interval', function($scope, $interval) {
-    var self = this, j= 0, counter = 0;
+    .controller('AppCtrl', ['$scope', '$interval', '$http','$mdDialog', function($scope, $interval, $http, $mdDialog) {
+	var self = this, j= 0, counter = 0;
+ 
+		self.mode_type;
+    	self.determinateValue = 0; 
+    	self.totalSended = 0;
+    	self.totalReceived = 0;
+    	self.mode_production = false;
+    	self.production_emails = [ ];
+    	self.development_emails = [ ]; 
+    	self.sending = false;
 
-    self.mode = 'query';
-    self.activated = true;
-    self.determinateValue = 30; 
+	    self.changeMode = function(){ 
+	    	self.current_mode = self.mode_production ? "Modo Produção" : "Modo Teste";
+	    	self.target_emails = self.mode_production ? self.production_emails : self.development_emails ;
+	    	// console.info( "Switched to: ", self.current_mode );
+	    }	
 
-    self.showList = [ ];
+	    function init(){ 
+	    	getTarget('development');
+	    	getTarget('production');
+	    	//	Just for animation ..
+	    	$interval(function() {
+		      self.determinateValue += 0; 
+		      if (self.determinateValue > 100) self.determinateValue = 1; 
+		    }, 100, 0, true);
+	    };
 
-    /**
-     * Turn off or on the 5 themed loaders
-     */
-    self.toggleActivation = function() {
-        if ( !self.activated ) self.showList = [ ];
-        if (  self.activated ) {
-          j = counter = 0;
-          self.determinateValue = 30; 
-        }
-    };
+	    self.sentMails = function(){
+	    	self.sending = true;
+	    	for( var ch in self.target_emails ){
+	    		var target =  self.target_emails[ch]
+	    		console.log('target',target)
+	    		sendTo(target.email);
+	    	}
+	    };
 
-    $interval(function() {
-      self.determinateValue += 1; 
+	    self.verifySending = function(){
+	    	return self.sending;
+	    }
 
-      if (self.determinateValue > 100) self.determinateValue = 30; 
+	    self.showAlert = function() { 
+		    $mdDialog.show(
+		      $mdDialog.alert()
+		        .parent(angular.element(document.querySelector('#popupContainer')))
+		        .clickOutsideToClose(true)
+		        .title('<?php echo APPLICATION_NAME; ?>')
+		        .textContent('Envio concluido!')
+		        .ariaLabel('Alert')
+		        .ok('OK')
+		    );
+		};
 
-        // Incrementally start animation the five (5) Indeterminate,
-        // themed progress circular bars
+	    init();
 
-        if ( (j < 2) && !self.showList[j] && self.activated ) {
-          self.showList[j] = true;
-        }
-        if ( counter++ % 4 === 0 ) j++;
+	    function getTarget(mode){
+	    	$http.get( "service/getTargets.php?mode=" + mode )
+	    	.then(function(response){
+	    		if(response.data.status == 'success'){
+	    			if(response.data.mode == 'production'){
+	    				self.production_emails = JSON.parse( response.data.data );
+	    				self.changeMode();
+	    			}else{
+	    				self.development_emails = JSON.parse( response.data.data );
+	    			} 
+	    		}else{
+	    			console.warn('error-success', response );
+	    		}
+	    	}).catch(function(error){
+	    		console.warn('error', error);
+	    	});
+	    } 
 
-        // Show the indicator in the "Used within Containers" after 200ms delay
-        if ( j == 2 ) self.contained = "indeterminate";
-
-    }, 100, 0, true);
-
-    $interval(function() {
-      self.mode = (self.mode == 'query' ? 'determinate' : 'query');
-    }, 7200, 0, true);
+	    function sendTo(email){
+	    	var body = $('#mail_content').val();
+	    	var subject = $('#mail_subject').val();
+	    	self.totalSended++;
+	    	$http.post( "sender.php", {  body: body, subject: subject, target_mail: email } )
+	    	.then(function(response){
+	    		self.totalReceived ++; 
+	    		if( self.totalReceived >= self.totalSended ){
+	    			self.sending = false;
+	    			self.totalReceived = 0;
+	    			self.totalSended = 0;
+	    			self.determinateValue = 0; 
+	    		}else{
+	    			self.determinateValue = Math.round((self.totalReceived*100)/self.totalSended);
+	    		}
+	    		console.log('sender-sucess',response);
+	    	}).catch(function(error){
+	    		console.warn('error', error);
+	    	});
+	    }
   }]);
   </script>	
 
@@ -107,18 +159,39 @@
       <h1 class="text-center header-spammer-dash">
         <?php echo APPLICATION_NAME; ?>
       </h1>
- 		
+ 	  <h4 class="text-center" ng-if="vm.verifySending()"> ( {{ vm.totalReceived }} / {{ vm.totalSended }} ) </h4>
  	  <div>
- 	  		<md-progress-linear md-mode="determinate" value="{{ vm.determinateValue }}"></md-progress-linear>
+ 	  		<md-progress-linear md-mode="determinate" class="custom-loaders" ng-if="vm.verifySending()"
+ 	  		value="{{ vm.determinateValue }}"></md-progress-linear>
  	  </div> 
 
- 	  <textarea style="480px">
+ 	  <md-input-container class="subject">
+        <label>Assunto</label>
+        <input id="mail_subject" value="UMA NOVA UTOPIA PARA O BRASIL">
+      </md-input-container>
+
+ 	  <textarea id="mail_content" style="480px">
  	  	
  	  </textarea>
 
+ 	  <div class="text-left col-sm-4 col-xs-12">
+        
+        {{ vm.current_mode }}
 
- 	  <div class="text-right">
-        <md-button type="submit" class="md-raised md-primary">Enviar</md-button>
+        <md-switch ng-change="vm.changeMode()" ng-model="vm.mode_production" aria-label="Switch 1">
+		  <b>{{ vm.target_emails.length }}</b> Emails Encontrados 
+		</md-switch>
+
+      </div>
+
+      <div class="text-right col-sm-4 col-xs-12">
+ 	    <md-progress-circular ng-if="vm.verifySending()" 
+ 	    style="float:right" md-mode="indeterminate"></md-progress-circular>
+      </div>
+
+ 	  <div class="text-center col-sm-4 col-xs-12"> 
+        <md-button type="submit" class="md-raised md-primary m-top-13" 
+        ng-disabled="vm.verifySending()" ng-click="vm.sentMails()" >Enviar</md-button>
       </div>
 
 

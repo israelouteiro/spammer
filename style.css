@@ -12,6 +12,8 @@ body{
 h3{
 	text-align: center;
 	color: red;
+	margin-top: -50px;
+	padding-bottom: 24px;
 }
 
 .header-spammer{
@@ -21,7 +23,7 @@ h3{
 
 
 .header-spammer-dash{
-	margin: 50px auto 75px;
+	margin: 50px auto 25px;
 	color: #0d8a7e;
 }
 
@@ -32,4 +34,19 @@ h3{
 
 .m-top-20{
 	margin-top: 20px;
+}
+
+.m-top-13{
+	margin-top: 13px;
+}
+
+.custom-loaders{
+	height: 25px;
+	margin-bottom: 20px;
+}
+
+.subject{
+	margin-bottom: 0 !important;
+	width: 100% !important;
+	height: 35px !important;
 }
