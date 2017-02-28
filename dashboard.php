@@ -47,6 +47,7 @@
     	self.production_emails = [ ];
     	self.development_emails = [ ]; 
     	self.sending = false;
+    	self.carregando = false;
 
 	    self.changeMode = function(){ 
 	    	self.current_mode = self.mode_production ? "Modo Produção" : "Modo Teste";
@@ -55,6 +56,7 @@
 	    }	
 
 	    function init(){ 
+	    	self.carregando = true;
 	    	getTarget('development');
 	    	getTarget('production');
 	    	//	Just for animation ..
@@ -98,6 +100,7 @@
 	    			if(response.data.mode == 'production'){
 	    				self.production_emails = JSON.parse( response.data.data );
 	    				self.changeMode();
+	    				self.carregando = false;
 	    			}else{
 	    				self.development_emails = JSON.parse( response.data.data );
 	    			} 
@@ -125,10 +128,26 @@
 	    			self.determinateValue = Math.round((self.totalReceived*100)/self.totalSended);
 	    		}
 	    		console.log('sender-sucess',response);
+	    		if(response=='remove'){
+	    			removeItem(email);
+	    		}
 	    	}).catch(function(error){
 	    		console.warn('error', error);
 	    	});
 	    }
+
+	    function removeItem(email){
+	    	$http.post( "remove_sender.php", { target_mail: email } )
+	    	.then(function(response){}).fail(function(){});
+	    }
+
+	    $scope.removeTarget = function(tar){
+
+	    	var indexRemove = self.target_emails.indexOf(tar) ;
+	 		self.target_emails.splice(	indexRemove , 1 );
+ 
+	    }
+
   }]);
   </script>	
 
@@ -160,39 +179,60 @@
         <?php echo APPLICATION_NAME; ?>
       </h1>
  	  <h4 class="text-center" ng-if="vm.verifySending()"> ( {{ vm.totalReceived }} / {{ vm.totalSended }} ) </h4>
+
  	  <div>
  	  		<md-progress-linear md-mode="determinate" class="custom-loaders" ng-if="vm.verifySending()"
  	  		value="{{ vm.determinateValue }}"></md-progress-linear>
  	  </div> 
 
- 	  <md-input-container class="subject">
-        <label>Assunto</label>
-        <input id="mail_subject" value="UMA NOVA UTOPIA PARA O BRASIL">
-      </md-input-container>
-
- 	  <textarea id="mail_content" style="480px">
- 	  	
- 	  </textarea>
-
- 	  <div class="text-left col-sm-4 col-xs-12">
-        
-        {{ vm.current_mode }}
+      <div class="col-sm-4 col-xs-12" ng-if="!vm.carregando">
+ 
+	        
+        <h4 class="colorido">{{ vm.current_mode }}</h4>
 
         <md-switch ng-change="vm.changeMode()" ng-model="vm.mode_production" aria-label="Switch 1">
 		  <b>{{ vm.target_emails.length }}</b> Emails Encontrados 
 		</md-switch>
+ 
+      	<md-list ng-if="!vm.mode_production">
+      		<md-list-item ng-repeat=" target in  vm.target_emails " class="secondary-button-padding">
+			    <p>{{ target.email }}</p>
+			    <md-button class="md-icon-button" ng-click="removeTarget(target)">
+			    	<md-icon class="material-icons" >
+		            	delete
+		            </md-icon>
+			    </md-button>
+			</md-list-item>
+      	</md-list>
+      </div>
+
+      <div class="col-sm-4 col-xs-12" ng-if="vm.carregando"> 
+      	<md-progress-circular md-mode="indeterminate" style="margin:60px auto;"></md-progress-circular>
+      </div>
+      
+      <div class="col-sm-8 col-xs-12">
+
+	 	  <md-input-container class="subject">
+	        <label>Assunto</label>
+	        <input id="mail_subject" value="UMA NOVA UTOPIA PARA O BRASIL">
+	      </md-input-container>
+
+	 	  <textarea id="mail_content" style="480px">
+	 	  	
+	 	  </textarea>
+ 
+	 	  <div class="text-center col-xs-12"> 
+
+	 	   	<md-progress-circular ng-if="vm.verifySending()" style="margin:auto;" md-mode="indeterminate"></md-progress-circular>
+
+	        <md-button type="submit" class="md-raised md-primary m-top-13" 
+	        ng-disabled="vm.verifySending()" ng-click="vm.sentMails()" >Enviar</md-button>
+
+	      </div>
 
       </div>
 
-      <div class="text-right col-sm-4 col-xs-12">
- 	    <md-progress-circular ng-if="vm.verifySending()" 
- 	    style="float:right" md-mode="indeterminate"></md-progress-circular>
-      </div>
-
- 	  <div class="text-center col-sm-4 col-xs-12"> 
-        <md-button type="submit" class="md-raised md-primary m-top-13" 
-        ng-disabled="vm.verifySending()" ng-click="vm.sentMails()" >Enviar</md-button>
-      </div>
+      
 
 
   </div>

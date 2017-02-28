@@ -1,9 +1,23 @@
 <?php
 	if( isset($_POST['mail']) && !empty($_POST['mail']) 
 	&&  isset($_POST['passwd']) && !empty($_POST['passwd']) ){
-		if( $_POST['mail'] == USR_NAME 
-		&&  $_POST['passwd'] == USR_PASSWD ){
+
+    include "service/includes/conexao.php";
+
+    $mail = addslashes($_POST['mail']);
+    $pass = sha1( ($_POST['passwd']) ) ;
+
+      $logou = mysql_query(" SELECT * FROM users_sender WHERE email='$mail' AND password='$pass' ");
+
+		if(haveResults($logou)){
+
 			$_SESSION['spammer_logged']['authorized'] = 'yeah' ;
+      $_SESSION['spammer_logged']['mail'] = $mail ;
+
+      $oid = mysql_result(" MYSQL ");
+      $now = getAgora();
+        mysql_query(" UPDATE users_sender SET last_access='$now' WHERE id='$oid' ");
+
 			header('Location:index.php');
 		}else{
       $error = "Credenciais inválidas" ;

@@ -1,5 +1,9 @@
 <?php
-ob_start(); 
+
+
+
+	ob_start(); 
+
 
  $cxn = new conexao;
  $cxn-> host= "localhost";
@@ -7,10 +11,18 @@ ob_start();
  $cxn-> senha= "spammy12#$";
  $cxn-> banco= "spammer";
 
- $cxn->conecta_banco(); 
+
+/*
+ $cxn = new conexao;
+ $cxn-> host= "mysql.israelouteiro.com";
+ $cxn-> user= "israelouteiro";
+ $cxn-> senha= "israel12!@";
+ $cxn-> banco= "israelouteiro";
+*/
 
 
-
+	  $cxn->conecta_banco(); 
+ 
 
  	class conexao
 	{
@@ -47,3 +59,4 @@ ob_start();
 	}
 
 ?>
+

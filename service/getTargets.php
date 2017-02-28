@@ -1,5 +1,7 @@
 <?php
-	include "includes/conexao.php";
+
+
+	require_once( "includes/conexao.php" ) ;
 
 		$mode = addslashes($_GET['mode']);
 	$results = mysql_query(" SELECT * FROM targets WHERE mode='$mode' AND active='true' ");	
@@ -9,3 +11,4 @@
 	}else{
 		echo json_encode( array( 'status' => 'error' , 'message' => 'not found' ) );
 	}
+
