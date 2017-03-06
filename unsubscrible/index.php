@@ -1,30 +1,13 @@
 <?php
-	if( isset($_POST['mail']) && !empty($_POST['mail']) 
-	&&  isset($_POST['passwd']) && !empty($_POST['passwd']) ){
 
-    include "service/includes/conexao.php";
 
-    $mail = addslashes($_POST['mail']);
-    $pass = sha1( ($_POST['passwd']) ) ;
+	require_once( "../service/includes/conexao.php" ) ;
+	require_once('../envoriment.php'); 
 
-      $logou = mysql_query(" SELECT * FROM users_sender WHERE email='$mail' AND password='$pass' ");
+		$mode = addslashes($_GET['e']);
+	$results = mysql_query(" UPDATE targets SET active='false' WHERE email='$mode' ");	 
+?>
 
-		if(haveResults($logou)){
-
-			$_SESSION['spammer_logged']['authorized'] = 'yeah' ;
-      $_SESSION['spammer_logged']['mail'] = $mail ;
-
-      $oid = mysql_result("");
-      $now = getAgora();
-      
-        mysql_query(" UPDATE users_sender SET last_access='$now' WHERE id='$oid' ");
-
-			header('Location:index.php');
-		}else{
-      $error = "Credenciais inválidas" ;
-    }
-	} 
-?>  
 <html lang="en" >
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -34,8 +17,8 @@
 
   <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="../favicon.png">
 </head>
 <body ng-app="BlankApp" ng-cloak>
   <!--
@@ -60,38 +43,15 @@
      * You must include the dependency on 'ngMaterial' 
      */
     angular.module('BlankApp', ['ngMaterial']);
-  </script>
-
+  </script> 
 
   <div class="container">
       
       <h1 class="text-center header-spammer">
-        <?php echo APPLICATION_NAME; ?>
-      </h1>
+        Ok, você não var mais receber mensagens de Projeto Uma Nova Utopia para o Brasil
+      </h1> 
 
-      <h3><?php echo $error; ?></h3>
-
-      <form action="" method="post">
-        <div class="col-sm-6 col-sm-offset-3">
-          <md-input-container class="cool-input">
-            <label>Email</label>
-            <input name="mail" type="email">
-          </md-input-container>
-          <md-input-container class="cool-input">
-            <label>Password</label>
-            <input name="passwd" type="password">
-          </md-input-container>
-
-          <div class="text-center">
-            <md-button type="submit" class="md-raised md-primary">Entrar</md-button>
-          </div>
-
-        </div>
-
-      </form>
-
-  </div>
-
+  </div> 
   
 </body>
 </html>

@@ -1,5 +1,6 @@
 <html lang="en" >
 <head>
+  <meta name="charset" content="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?php echo APPLICATION_NAME; ?></title>
   <!-- Angular Material style sheet -->
@@ -70,7 +71,7 @@
 	    	self.sending = true;
 	    	for( var ch in self.target_emails ){
 	    		var target =  self.target_emails[ch]
-	    		console.log('target',target)
+	    		// console.log('target',target)
 	    		sendTo(target.email);
 	    	}
 	    };
@@ -124,14 +125,16 @@
 	    			self.totalReceived = 0;
 	    			self.totalSended = 0;
 	    			self.determinateValue = 0; 
+	    			self.showAlert()
 	    		}else{
 	    			self.determinateValue = Math.round((self.totalReceived*100)/self.totalSended);
 	    		}
-	    		console.log('sender-sucess',response);
+	    		// console.log('sender-sucess',response);
 	    		if(response=='remove'){
 	    			removeItem(email);
 	    		}
 	    	}).catch(function(error){
+	    		self.totalReceived ++; 
 	    		console.warn('error', error);
 	    	});
 	    }
@@ -151,7 +154,7 @@
   }]);
   </script>	
 
-  <!-- include summernote css/js-->
+	<!-- include summernote css/js-->
 	<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.css" rel="stylesheet">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.js"></script>
 
@@ -185,7 +188,7 @@
  	  		value="{{ vm.determinateValue }}"></md-progress-linear>
  	  </div> 
 
-      <div class="col-sm-4 col-xs-12" ng-if="!vm.carregando">
+      <div class="col-sm-4 col-xs-12" style="overflow: auto; height: 558px;" ng-if="!vm.carregando">
  
 	        
         <h4 class="colorido">{{ vm.current_mode }}</h4>
@@ -214,7 +217,7 @@
 
 	 	  <md-input-container class="subject">
 	        <label>Assunto</label>
-	        <input id="mail_subject" value="UMA NOVA UTOPIA PARA O BRASIL">
+	        <input id="mail_subject" value="Uma Nova Utopia para o Brasil">
 	      </md-input-container>
 
 	 	  <textarea id="mail_content" style="480px">
