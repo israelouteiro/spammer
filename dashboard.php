@@ -13,11 +13,8 @@
       rel="stylesheet">
   <link rel="icon" href="favicon.png">
 </head>
-<body ng-app="BlankApp" ng-cloak>
-  <!--
-    Your HTML content here
-  -->  
-  
+<body ng-app="BlankApp" ng-cloak> 
+
   <!-- Angular Material requires Angular.js Libraries -->
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
@@ -69,6 +66,9 @@
 
 	    self.sentMails = function(){
 	    	self.sending = true;
+		    	$('html, body').animate({
+		    		scrollTop: 0
+		    	},'fast');
 	    	for( var ch in self.target_emails ){
 	    		var target =  self.target_emails[ch]
 	    		// console.log('target',target)
@@ -119,24 +119,28 @@
 	    	self.totalSended++;
 	    	$http.post( "sender.php", {  body: body, subject: subject, target_mail: email } )
 	    	.then(function(response){
-	    		self.totalReceived ++; 
-	    		if( self.totalReceived >= self.totalSended ){
-	    			self.sending = false;
-	    			self.totalReceived = 0;
-	    			self.totalSended = 0;
-	    			self.determinateValue = 0; 
-	    			self.showAlert()
-	    		}else{
-	    			self.determinateValue = Math.round((self.totalReceived*100)/self.totalSended);
-	    		}
+	    		receiveResponse()
 	    		// console.log('sender-sucess',response);
 	    		if(response=='remove'){
 	    			removeItem(email);
 	    		}
 	    	}).catch(function(error){
-	    		self.totalReceived ++; 
+	    		receiveResponse()
 	    		console.warn('error', error);
 	    	});
+	    }
+
+	    function receiveResponse(){
+	    	self.totalReceived ++; 
+    		if( self.totalReceived >= self.totalSended ){
+    			self.sending = false;
+    			self.totalReceived = 0;
+    			self.totalSended = 0;
+    			self.determinateValue = 0; 
+    			self.showAlert()
+    		}else{
+    			self.determinateValue = Math.round((self.totalReceived*100)/self.totalSended);
+    		}
 	    }
 
 	    function removeItem(email){
@@ -153,20 +157,7 @@
 
   }]);
   </script>	
-
-	<!-- include summernote css/js-->
-	<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.css" rel="stylesheet">
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.js"></script>
-
-  <script>
-  	$(document).ready(function(){
-  		$('textarea').summernote({
-  		  height: 420,
-		  focus: true       
-  		});
-  	})
-  </script>
-
+  
 
   <div class="container" ng-controller="AppCtrl as vm" >
       
@@ -218,11 +209,12 @@
 	 	  <md-input-container class="subject">
 	        <label>Assunto</label>
 	        <input id="mail_subject" value="Uma Nova Utopia para o Brasil">
-	      </md-input-container>
-
-	 	  <textarea id="mail_content" style="480px">
-	 	  	
-	 	  </textarea>
+	      </md-input-container>  
+	      
+		    <md-input-container class="md-block">
+	          <label>Digite o email aqui</label>
+	          <textarea rows="5" md-select-on-focus id="mail_content"></textarea>
+	        </md-input-container>
  
 	 	  <div class="text-center col-xs-12"> 
 
@@ -245,6 +237,9 @@
 </html>
 
 <!--
+
 Copyright 2016 Google Inc. All Rights Reserved. 
-Use of this source code is governed by an MIT-style license that can be in foundin the LICENSE file at http://material.angularjs.org/license.
+Use of this source code is governed by an MIT-style license that can be in foundin the LICENSE file at 
+http://material.angularjs.org/license.
+
 -->

@@ -1,17 +1,30 @@
 <?php
 
-
+  require_once '../vendor/swiftmailer/swiftmailer/lib/swift_required.php';
 	require_once( "../service/includes/conexao.php" ) ;
 	require_once('../envoriment.php'); 
 
 		$mode = addslashes($_GET['e']);
 	$results = mysql_query(" UPDATE targets SET active='false' WHERE email='$mode' ");	 
+
+
+   $email_sender = 'divulga@brasilutopia.com.br'; 
+   // $email_sender = 'aidemoc@gmail.com'; 
+
+   $message = 'Olá, o email ('.$mode.') acaba de ser removido da lista';
+
+   sendMail($message, 'Email removido da lista - Projeto Uma Nova Utopia para o Brasil', $email_sender );
+
+
+
 ?>
 
 <html lang="en" >
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="charset" content="utf-8">
   <title><?php echo APPLICATION_NAME; ?></title>
+
   <!-- Angular Material style sheet -->
   <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
 

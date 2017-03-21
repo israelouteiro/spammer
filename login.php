@@ -1,7 +1,7 @@
 <?php
 	if( isset($_POST['mail']) && !empty($_POST['mail']) 
 	&&  isset($_POST['passwd']) && !empty($_POST['passwd']) ){
-
+    require_once 'vendor/swiftmailer/swiftmailer/lib/swift_required.php';
     include "service/includes/conexao.php";
 
     $mail = addslashes($_POST['mail']);
