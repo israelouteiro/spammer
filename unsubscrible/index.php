@@ -13,7 +13,7 @@
 
    $message = 'Olá, o email ('.$mode.') acaba de ser removido da lista';
 
-   sendMail($message, 'Email removido da lista - Projeto Uma Nova Utopia para o Brasil', $email_sender );
+  // sendMail($message, 'Email removido da lista - Projeto Uma Nova Utopia para o Brasil', $email_sender );
 
 
 
